@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Chat</h1>
+    <div id="chat-messages"></div>
+    <input type="text" id="chat-input" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const username = '{{ username }}';
+        const socket = io.connect('http://192.168.147.226:8080', {
+            query: { username: username }
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to the server');
+        });
+
+        socket.on('message', (data) => {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML += `<div><strong>${data.sender}:</strong> ${data.message}</div>`;
+        });
+
+        function sendMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            if (message) {
+                socket.emit('message', { sender: username, message: message });
+                chatInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
